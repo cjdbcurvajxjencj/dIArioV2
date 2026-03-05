@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Diario Scolastico Intelligente v08.12.2025",
+  "description": "Un diario scolastico potenziato dall'IA per registrare lezioni, trascriverle, generare riassunti, pianificare lo studio e creare quiz per ottimizzare l'apprendimento.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "prompt": ""
+}

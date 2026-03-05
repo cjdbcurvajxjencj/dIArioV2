@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diario Scolastico Intelligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react-dom": "https://esm.sh/react-dom@^19.1.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.8.0",
+    "capacitor-voice-recorder": "https://esm.sh/capacitor-voice-recorder@^7.0.6",
+    "katex": "https://esm.sh/katex@^0.16.9",
+    "@capacitor/core": "https://esm.sh/@capacitor/core@^6.0.0",
+    "@capacitor/app": "https://esm.sh/@capacitor/app@^6.0.0",
+    "@capacitor/filesystem": "https://esm.sh/@capacitor/filesystem@^6.0.0",
+    "pako": "https://esm.sh/pako@^2.1.0",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.2",
+    "vite": "https://aistudiocdn.com/vite@^7.1.5"
+  }
+}
+</script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    }
+  </script>
+  <style>
+      /* Keyframes for animations */
+      @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+       @keyframes slideInFromRight {
+        from { opacity: 0; transform: translateX(20px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes slideInFromLeft {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes slideOutToLeft {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(-20px); }
+      }
+      @keyframes slideOutToRight {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(20px); }
+      }
+      @keyframes pulse-dot {
+        0%, 100% {
+          opacity: 0.7;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+      }
+
+      /* Animation utility classes */
+      .animate-pop-in {
+        animation: popIn 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+      .animate-slide-in-from-right {
+        animation: slideInFromRight 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      }
+      .animate-slide-in-from-left {
+        animation: slideInFromLeft 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      }
+      .animate-slide-out-to-left {
+        animation: slideOutToLeft 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      }
+      .animate-slide-out-to-right {
+        animation: slideOutToRight 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      }
+
+      /* Slower animations for lesson view navigation */
+      .animate-slide-in-from-right-slow {
+        animation: slideInFromRight 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      }
+      .animate-slide-in-from-left-slow {
+        animation: slideInFromLeft 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      }
+      .animate-slide-out-to-left-slow {
+        animation: slideOutToLeft 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      }
+      .animate-slide-out-to-right-slow {
+        animation: slideOutToRight 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      }
+      
+      /* For smooth accordion transition */
+      .accordion-content {
+        transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+      }
+      .accordion-content-expanded {
+        max-height: 10000px; /* A large enough value to not clip content */
+        opacity: 1;
+      }
+
+      /* Search highlight styles */
+      .search-highlight {
+        background-color: #fef08a; /* yellow-200 */
+        color: #713f12; /* amber-900 */
+        border-radius: 2px;
+        padding: 1px 0;
+      }
+      .dark .search-highlight {
+        background-color: #fde047; /* yellow-400 */
+        color: #1e293b; /* slate-800 */
+      }
+      .search-highlight-current {
+        background-color: #fb923c; /* orange-400 */
+        color: #431407; /* orange-950 */
+        box-shadow: 0 0 0 2px #fb923c;
+      }
+      .dark .search-highlight-current {
+        background-color: #f97316; /* orange-500 */
+        color: #ffffff;
+        box-shadow: 0 0 0 2px #f97316;
+      }
+
+      /* Sync indicator */
+      .sync-indicator {
+        position: fixed;
+        top: 1.25rem;
+        right: 1.25rem;
+        z-index: 50;
+        animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      /* Drag and drop reorder styles */
+      .reorder-item {
+        will-change: transform; /* Performance hint for the browser */
+        touch-action: none; /* Prevent default touch actions like scrolling */
+      }
+      .dragging-item {
+        opacity: 0.95;
+        z-index: 100;
+        transform: scale(1.03);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.15);
+        pointer-events: none; /* The dragged item shouldn't interfere with drop targets */
+      }
+      .reorder-placeholder {
+          opacity: 0.4;
+          background: #eef2ff; /* indigo-50 */
+          border: 2px dashed #6366f1; /* indigo-500 */
+      }
+      .dark .reorder-placeholder {
+          background: #312e81; /* indigo-900 */
+          border-color: #818cf8; /* indigo-400 */
+      }
+      .reorder-placeholder > * {
+          visibility: hidden;
+      }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-100 dark:bg-slate-900 h-full">
+    <div id="root" class="h-full"></div>
+    <div id="modal-root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
